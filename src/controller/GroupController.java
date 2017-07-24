@@ -2,21 +2,30 @@ package controller;
 
 import model.Model;
 import model.dao.GroupDAO;
+import model.entities.EntityFactory;
 import model.entities.Group;
-import view.View;
+import util.Observer;
 
 import java.util.Set;
 
 public class GroupController {
     private Model model;
-    private View view;
 
     private GroupDAO dao;
+    private EntityFactory factory;
 
-    GroupController(Model model, View view) {
-        this.view = view;
+    GroupController(Model model) {
         this.model = model;
         dao = model.getDAOProvider().getGroupDAO();
+        factory = model.getFactory();
+    }
+
+    public void addObserver(Observer observer) {
+        dao.addObserver(observer);
+    }
+
+    public Group getNew() {
+        return (Group)model.getFactory().getGroup();
     }
 
     public boolean add(Group group) {
@@ -38,4 +47,7 @@ public class GroupController {
         return dao.update(groups);
     }
 
+    public Set<Group> getAll() {
+        return dao.getAll();
+    }
 }
