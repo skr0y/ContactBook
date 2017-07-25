@@ -1,8 +1,8 @@
 package model.entities;
 
-import model.entities.Entity;
+import java.io.Serializable;
 
-public class Contact extends Entity {
+public class Contact extends Entity implements Serializable {
     private String firstName;
     private String lastName;
     private String phoneNumber;
@@ -12,7 +12,7 @@ public class Contact extends Entity {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    void setFirstName(String firstName) {
         if (firstName == null || firstName.isEmpty()) {
             throw new IllegalArgumentException("First name is not specified");
         }
@@ -23,7 +23,7 @@ public class Contact extends Entity {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    void setLastName(String lastName) {
         this.lastName = lastName;
     }
 
@@ -31,7 +31,7 @@ public class Contact extends Entity {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
+    void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
@@ -43,7 +43,7 @@ public class Contact extends Entity {
         return group;
     }
 
-    public void setGroup(Group group) {
+    void setGroup(Group group) {
         this.group = group;
     }
 }

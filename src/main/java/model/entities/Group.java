@@ -1,13 +1,15 @@
 package model.entities;
 
-public class Group extends Entity {
+import java.io.Serializable;
+
+public class Group extends Entity implements Serializable {
     private String groupName;
 
     public String getGroupName() {
         return groupName;
     }
 
-    public void setGroupName(String groupName) {
+    void setGroupName(String groupName) {
         if (groupName == null || groupName.isEmpty()) {
             throw new IllegalArgumentException("Group name is not specified");
         }
