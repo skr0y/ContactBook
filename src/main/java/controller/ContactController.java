@@ -22,9 +22,9 @@ public class ContactController {
 
     ContactController(Model model) {
         this.model = model;
-        dao = model.getDAOProvider().getContactDAO();
-        groupDAO = model.getDAOProvider().getGroupDAO();
-        factory = model.getFactory();
+        dao = model.getDaoFactory().getContactDAO();
+        groupDAO = model.getDaoFactory().getGroupDAO();
+        factory = model.getEntityFactory();
     }
 
     public void addObserver(Observer observer) {

@@ -1,28 +1,28 @@
 package model;
 
-import model.dao.DAOProvider;
+import model.dao.DAOFactory;
 import model.entities.EntityFactory;
 
 public class Model {
     private static Model instance = new Model();
 
-    private DAOProvider daoProvider;
-    private EntityFactory factory;
+    private DAOFactory daoFactory;
+    private EntityFactory entityFactory;
 
     public static Model getInstance() {
         return instance;
     }
 
     private Model() {
-        daoProvider = DAOProvider.getInstance();
-        factory = new EntityFactory();
+        daoFactory = new DAOFactory();
+        entityFactory = new EntityFactory();
     }
 
-    public DAOProvider getDAOProvider() {
-        return daoProvider;
+    public DAOFactory getDaoFactory() {
+        return daoFactory;
     }
 
-    public EntityFactory getFactory() {
-        return factory;
+    public EntityFactory getEntityFactory() {
+        return entityFactory;
     }
 }

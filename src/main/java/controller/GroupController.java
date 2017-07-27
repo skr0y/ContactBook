@@ -18,8 +18,8 @@ public class GroupController {
 
     GroupController(Model model) {
         this.model = model;
-        dao = model.getDAOProvider().getGroupDAO();
-        factory = model.getFactory();
+        dao = model.getDaoFactory().getGroupDAO();
+        factory = model.getEntityFactory();
     }
 
     public void addObserver(Observer observer) {
