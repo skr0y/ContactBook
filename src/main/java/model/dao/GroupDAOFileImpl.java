@@ -1,10 +1,6 @@
 package model.dao;
 
-import javafx.beans.InvalidationListener;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
 import model.entities.Group;
-import util.Observer;
 
 import java.io.*;
 import java.util.HashSet;
@@ -14,29 +10,12 @@ public class GroupDAOFileImpl implements GroupDAO {
     private final String DEFAULT_FILENAME = "groups.db";
 
     private String fileName = DEFAULT_FILENAME;
-    private ObservableSet<Group> groups;
 
-    GroupDAOFileImpl() {
-        groups = FXCollections.observableSet(new HashSet<Group>());
-    }
-
-    public void addObserver(Observer observer) {
-        groups.addListener((InvalidationListener) o -> observer.update(o));
-        load();
-    }
-
-    public boolean update(Set<Group> groups) {
-        this.groups.clear();
-        this.groups.addAll(groups);
-        return save();
-    }
-
-    public boolean save() {
+    private boolean save(Set<Group> groups) {
         File dbFile = new File(fileName);
         try {
             dbFile.createNewFile();
-            try (FileOutputStream fos = new FileOutputStream(dbFile, false);
-                 ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(dbFile, false))) {
                 for (Group group : groups) {
                     oos.writeObject(group);
                 }
@@ -49,24 +28,52 @@ public class GroupDAOFileImpl implements GroupDAO {
         return true;
     }
 
-    public boolean load() {
-        try (FileInputStream fis = new FileInputStream(fileName);
-            ObjectInputStream ois = new ObjectInputStream(fis)) {
+    private Set<Group> load() {
+        Set<Group> groups = new HashSet<>();
+        int lastId = 0;
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
             Group input;
-            groups.clear();
             while ((input = (Group)ois.readObject()) != null) {
                 groups.add(input);
+                if (input.getId() > lastId) {
+                    lastId = input.getId();
+                }
             }
+        } catch (Exception e) {
+            //
+        }
+        Group.lastId = lastId;
+        return groups;
+    }
+
+    public boolean add(Group group) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName, true))) {
+            oos.writeObject(group);
         } catch (Exception e) {
             return false;
         }
         return true;
     }
 
+    public boolean update(Group group) {
+        Set<Group> groups = load();
+        groups.stream().filter(x -> x.getId() == group.getId()).findFirst().ifPresent(groups::remove);
+        groups.add(group);
+        return save(groups);
+    }
+
+    public boolean delete(Group group) {
+        Set<Group> groups = load();
+        groups.stream().filter(x -> x.getId() == group.getId()).findFirst().ifPresent(groups::remove);
+        return save(groups);
+    }
+
+    public Group get(int id) {
+        Set<Group> groups = load();
+        return groups.stream().filter(x -> x.getId() == id).findFirst().orElse(null);
+    }
+
     public Set<Group> getAll() {
-        if (groups.isEmpty()) {
-            load();
-        }
-        return groups;
+        return load();
     }
 }

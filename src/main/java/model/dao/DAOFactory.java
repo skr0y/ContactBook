@@ -28,8 +28,13 @@ public class DAOFactory {
                 groupDAO = new GroupDAOFileImpl();
                 break;
             case "xmldom":
+                groupDAO = new GroupDAOXmlDomImpl();
+                break;
             case "xmlsax":
+                groupDAO = new GroupDAOXmlSaxImpl();
+                break;
             case "xmljackson":
+                groupDAO = new GroupDAOXmlJacksonImpl();
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", typeDAO));
@@ -44,8 +49,13 @@ public class DAOFactory {
                 contactDAO = new ContactDAOFileImpl();
                 break;
             case "xmldom":
+                contactDAO = new ContactDAOXmlDomImpl();
+                break;
             case "xmlsax":
+                contactDAO = new ContactDAOXmlSaxImpl();
+                break;
             case "xmljackson":
+                contactDAO = new ContactDAOXmlJacksonImpl();
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", typeDAO));

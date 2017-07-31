@@ -1,21 +1,25 @@
 package view;
 
 import controller.Controller;
-import javafx.beans.Observable;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import model.entities.Contact;
-import model.entities.Group;
-import util.Observer;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MainView {
+    @FXML
+    public ComboBox<Map<String, Object>> cmbGroupFilter;
+    @FXML
+    public TextField txtSearch;
+    @FXML
+    private Label lblContactID;
+    @FXML
+    private Label lblGroupID;
     @FXML
     private TextField txtGroupName;
     @FXML
@@ -25,21 +29,25 @@ public class MainView {
     @FXML
     private TextField txtPhone;
     @FXML
-    private ListView<Contact> lvContacts;
+    private ListView<Map<String, Object>> lvContacts;
     @FXML
-    private ListView<Group> lvGroups;
+    private ListView<Map<String, Object>> lvGroups;
     @FXML
-    private ComboBox<Group> cmbGroup;
+    private ComboBox<Map<String, Object>> cmbGroup;
 
     private Controller controller = View.getController();
-
-    private Map<String, Object> oldContact = new HashMap<>();
-    private Map<String, Object> oldGroup = new HashMap<>();
 
     @FXML
     public void initialize(){
         controller.getContactController().addObserver(new ContactsObserver());
         controller.getGroupController().addObserver(new GroupsObserver());
+
+        loadContacts();
+        loadGroups();
+
+        txtSearch.textProperty().addListener((observable, oldValue, newValue) -> {
+            onSearch();
+        });
     }
 
     private void showAlert(String errorMessage) {
@@ -52,122 +60,163 @@ public class MainView {
         params.put("lastName", txtLastName.getText());
         params.put("phoneNumber", txtPhone.getText());
         if (!cmbGroup.getSelectionModel().isEmpty()) {
-            params.put("groupName", cmbGroup.getSelectionModel().selectedItemProperty().get().getGroupName());
+            params.put("groupId", cmbGroup.getSelectionModel().selectedItemProperty().get().get("groupId"));
         }
-        controller.getContactController().add(params);
+        if (!controller.getContactController().add(params)) {
+            showAlert("An error occurred while adding new contact");
+        }
     }
 
     public void onSaveContactPressed(ActionEvent actionEvent) {
         Map<String, Object> params = new HashMap<>();
-        if (oldContact == null) {
-            showAlert("Select a contact from the list first");
-            return;
-        }
-        params.put("oldFirstName", oldContact.get("firstName"));
-        params.put("oldLastName", oldContact.get("lastName"));
-        params.put("oldPhoneNumber", oldContact.get("phoneNumber"));
-        params.put("oldGroupName", oldContact.get("groupName"));
+        params.put("contactId", Integer.parseInt(lblContactID.getText()));
         params.put("firstName", txtFirstName.getText());
         params.put("lastName", txtLastName.getText());
         params.put("phoneNumber", txtPhone.getText());
         if (!cmbGroup.getSelectionModel().isEmpty()) {
-            params.put("groupName", cmbGroup.getSelectionModel().selectedItemProperty().get().getGroupName());
+            params.put("groupId", cmbGroup.getSelectionModel().selectedItemProperty().get().get("groupId"));
         }
-        oldContact = params;
-        controller.getContactController().update(params);
+        if (!controller.getContactController().update(params)) {
+            showAlert("An error occurred while saving contact");
+        }
     }
 
     public void onDeleteContactPressed(ActionEvent actionEvent) {
         Map<String, Object> params = new HashMap<>();
+        params.put("contactId", Integer.parseInt(lblContactID.getText()));
         params.put("firstName", txtFirstName.getText());
         params.put("lastName", txtLastName.getText());
         params.put("phoneNumber", txtPhone.getText());
         if (!cmbGroup.getSelectionModel().isEmpty()) {
-            params.put("groupName", cmbGroup.getSelectionModel().selectedItemProperty().get().getGroupName());
+            params.put("groupId", cmbGroup.getSelectionModel().selectedItemProperty().get().get("groupId"));
         }
-        controller.getContactController().delete(params);
+        if (!controller.getContactController().delete(params)) {
+            showAlert("An error occurred while deleting contact");
+        }
     }
 
     public void onContactSelect(MouseEvent mouseEvent) {
         if (lvContacts.getSelectionModel().isEmpty()) {
             return;
         }
-        Contact contact = (Contact)lvContacts.getSelectionModel().getSelectedItem();
-        txtFirstName.setText(contact.getFirstName());
-        txtLastName.setText(contact.getLastName());
-        txtPhone.setText(contact.getPhoneNumber());
-        cmbGroup.getSelectionModel().select(contact.getGroup());
-        oldContact.put("firstName", contact.getFirstName());
-        oldContact.put("lastName", contact.getLastName());
-        oldContact.put("phoneNumber", contact.getPhoneNumber());
-        if (contact.getGroup() != null) {
-            oldContact.put("groupName", contact.getGroup().getGroupName());
-        }
+        Map<String, Object> contact = lvContacts.getSelectionModel().getSelectedItem();
+        lblContactID.setText(Integer.toString((int)contact.get("contactId")));
+        txtFirstName.setText((String) contact.get("firstName"));
+        txtLastName.setText((String) contact.get("lastName"));
+        txtPhone.setText((String) contact.get("phoneNumber"));
+        cmbGroup.getSelectionModel().select(cmbGroup.getItems().stream().filter(x -> x.get("groupId") == contact.get("groupId")).findFirst().orElse(null));
     }
 
     public void onNewGroupPressed(ActionEvent actionEvent) {
         Map<String, Object> params = new HashMap<>();
         params.put("groupName", txtGroupName.getText());
-        controller.getGroupController().add(params);
+        if (!controller.getGroupController().add(params)) {
+            showAlert("An error occurred while adding new group");
+        }
     }
 
     public void onSaveGroupPressed(ActionEvent actionEvent) {
         Map<String, Object> params = new HashMap<>();
-        params.put("oldGroupName", oldGroup.get("groupName"));
+        params.put("groupId", Integer.parseInt(lblGroupID.getText()));
         params.put("groupName", txtGroupName.getText());
-        oldGroup = params;
-        controller.getGroupController().update(params);
+        if (!controller.getGroupController().update(params)) {
+            showAlert("An error occurred while saving group");
+        }
     }
 
     public void onDeleteGroupPressed(ActionEvent actionEvent) {
         Map<String, Object> params = new HashMap<>();
+        params.put("groupId", Integer.parseInt(lblGroupID.getText()));
         params.put("groupName", txtGroupName.getText());
-        controller.getGroupController().delete(params);
+        if (!controller.getGroupController().delete(params)) {
+            showAlert("An error occurred while deleting group");
+        }
     }
 
     public void onGroupSelect(MouseEvent mouseEvent) {
         if (lvGroups.getSelectionModel().isEmpty()) {
             return;
         }
-        Group group = (Group) lvGroups.getSelectionModel().getSelectedItem();
-        txtGroupName.setText(group.getGroupName());
-        oldGroup.put("groupName", group.getGroupName());
+        Map<String, Object> group = lvGroups.getSelectionModel().getSelectedItem();
+        lblGroupID.setText(Integer.toString((int)group.get("groupId")));
+        txtGroupName.setText((String) group.get("groupName"));
+    }
+
+    private void onSearch() {
+        String query = txtSearch.getText();
+        Set<Map<String, Object>> result = controller.getContactController().getAll().stream().filter(x -> ((String) x.get("firstName")).contains(query)).collect(Collectors.toSet());
+        ObservableList<Map<String, Object>> list = FXCollections.observableArrayList(result);
+        lvContacts.setItems(list);
+    }
+
+    public void onGroupFilter(ActionEvent actionEvent) {
+        if (!cmbGroupFilter.getSelectionModel().getSelectedItem().isEmpty()) {
+            int groupId = (int) cmbGroupFilter.getSelectionModel().getSelectedItem().get("groupId");
+            Set<Map<String, Object>> result = controller.getContactController().getAll().stream().filter(x -> ((int) x.get("groupId")) == groupId).collect(Collectors.toSet());
+            ObservableList<Map<String, Object>> list = FXCollections.observableArrayList(result);
+            lvContacts.setItems(list);
+        }
+    }
+
+    private void loadGroups() {
+        cmbGroup.setItems(FXCollections.observableArrayList(controller.getGroupController().getAll()));
+        cmbGroup.setCellFactory(x -> new ListCell<Map<String, Object>>() {
+            protected void updateItem(Map<String, Object> group, boolean empty) {
+                super.updateItem(group, empty);
+                if (group != null) {
+                    setText((String)group.get("groupName"));
+                } else {
+                    setText("");
+                }
+            }
+        });
+        cmbGroupFilter.setItems(FXCollections.observableArrayList(controller.getGroupController().getAll()));
+        cmbGroupFilter.setCellFactory(x -> new ListCell<Map<String, Object>>() {
+            protected void updateItem(Map<String, Object> group, boolean empty) {
+                super.updateItem(group, empty);
+                if (group != null) {
+                    setText((String)group.get("groupName"));
+                } else {
+                    setText("");
+                }
+            }
+        });
+        lvGroups.setItems(FXCollections.observableArrayList(controller.getGroupController().getAll()));
+        lvGroups.setCellFactory(x -> new ListCell<Map<String, Object>>() {
+            protected void updateItem(Map<String, Object> group, boolean empty) {
+                super.updateItem(group, empty);
+                if (group != null) {
+                    setText((String)group.get("groupName"));
+                } else {
+                    setText("");
+                }
+            }
+        });
+    }
+
+    private void loadContacts() {
+        lvContacts.setItems(FXCollections.observableArrayList(controller.getContactController().getAll()));
+        lvContacts.setCellFactory(x -> new ListCell<Map<String, Object>>() {
+            protected void updateItem(Map<String, Object> contact, boolean empty) {
+                super.updateItem(contact, empty);
+                if (contact != null) {
+                    setText(String.format("%1s %2s", contact.get("firstName"), contact.get("lastName")).trim());
+                } else {
+                    setText("");
+                }
+            }
+        });
     }
 
     private class ContactsObserver implements Observer {
-        public void update(Observable o) {
-            lvContacts.setItems(FXCollections.observableArrayList((ObservableSet<Contact>) o));
-            lvContacts.setCellFactory(x -> new ListCell<Contact>() {
-                protected void updateItem(Contact contact, boolean empty) {
-                    super.updateItem(contact, empty);
-                    if (contact != null) {
-                        setText(contact.toString());
-                    }
-                }
-            });
+        public void update(Observable o, Object arg) {
+            loadContacts();
         }
     }
 
     private class GroupsObserver implements Observer {
-        public void update(Observable o) {
-            cmbGroup.setItems(FXCollections.observableArrayList((ObservableSet<Group>) o));
-            cmbGroup.setCellFactory(x -> new ListCell<Group>() {
-                protected void updateItem(Group group, boolean empty) {
-                    super.updateItem(group, empty);
-                    if (group != null) {
-                        setText(group.toString());
-                    }
-                }
-            });
-            lvGroups.setItems(FXCollections.observableArrayList((ObservableSet<Group>) o));
-            lvGroups.setCellFactory(x -> new ListCell<Group>() {
-                protected void updateItem(Group group, boolean empty) {
-                    super.updateItem(group, empty);
-                    if (group != null) {
-                        setText(group.toString());
-                    }
-                }
-            });
+        public void update(Observable o, Object arg) {
+            loadGroups();
         }
     }
 }

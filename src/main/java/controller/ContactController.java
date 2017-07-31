@@ -2,98 +2,58 @@ package controller;
 
 import model.Model;
 import model.dao.ContactDAO;
-import model.dao.GroupDAO;
 import model.entities.Contact;
 import model.entities.EntityFactory;
-import model.entities.Group;
-import util.Observer;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
-public class ContactController {
+public class ContactController extends Observable {
     private Model model;
 
-    private ContactDAO dao;
-    private GroupDAO groupDAO;
-    private EntityFactory factory;
+    private ContactDAO contactDAO;
+    private EntityFactory entityFactory;
 
     ContactController(Model model) {
         this.model = model;
-        dao = model.getDaoFactory().getContactDAO();
-        groupDAO = model.getDaoFactory().getGroupDAO();
-        factory = model.getEntityFactory();
-    }
-
-    public void addObserver(Observer observer) {
-        dao.addObserver(observer);
+        contactDAO = model.getDaoFactory().getContactDAO();
+        entityFactory = model.getEntityFactory();
     }
 
     public boolean add(Map<String, Object> params) {
-        Set<Contact> contacts = new HashSet<>(dao.getAll());
-        Contact newContact;
-        Group newGroup = groupDAO.getAll().stream().filter(x -> x.getGroupName().equals(params.get("groupName"))).findFirst().orElse(null);
-        params.remove("groupName");
-        params.put("group", newGroup);
-        newContact = (Contact)factory.getContact(params);
-        contacts.add(newContact);
-        return dao.update(contacts);
+        Contact newContact = (Contact) entityFactory.getContact(params);
+        boolean result = contactDAO.add(newContact);
+        setChanged();
+        notifyObservers();
+        return result;
     }
 
     public boolean delete(Map<String, Object> params) {
-        Set<Contact> contacts = new HashSet<>(dao.getAll());
-        Contact delContact = null;
-        for (Contact contact : contacts) {
-            if (contact.getFirstName().equals(params.get("firstName"))
-                    && contact.getLastName().equals(params.get("lastName"))
-                    && contact.getPhoneNumber().equals(params.get("phoneNumber"))
-                    && ((contact.getGroup() == null && params.get("groupName") == null) || (contact.getGroup().getGroupName().equals(params.get("groupName"))))) {
-                delContact = contact;
-                break;
-            }
-        }
-        if (delContact != null) {
-            contacts.remove(delContact);
-            return dao.update(contacts);
-        }
-        return false;
+        Contact contact = contactDAO.get((int) params.get("contactId"));
+        boolean result = contact != null && contactDAO.delete(contact);
+        setChanged();
+        notifyObservers();
+        return result;
     }
 
     public boolean update(Map<String, Object> params) {
-        Set<Contact> contacts = new HashSet<>(dao.getAll());
-        Contact oldContact = null;
-        Contact newContact;
-        Group newGroup;
-
-        for (Contact contact : contacts) {
-            if (contact.getFirstName().equals(params.get("oldFirstName"))
-                    && contact.getLastName().equals(params.get("oldLastName"))
-                    && contact.getPhoneNumber().equals(params.get("oldPhoneNumber"))
-                    && ((contact.getGroup() == null && params.get("oldGroupName") == null) || (contact.getGroup().getGroupName().equals(params.get("oldGroupName"))))) {
-                oldContact = contact;
-                break;
-            }
-        }
-        if (oldContact == null) {
-            return false;
-        }
-        contacts.remove(oldContact);
-
-        newGroup = groupDAO.getAll().stream().filter(x -> x.getGroupName().equals(params.get("groupName"))).findFirst().orElse(null);
-        params.remove("groupName");
-        params.put("group", newGroup);
-        newContact = (Contact)factory.getContact(params);
-        contacts.add(newContact);
-        return dao.update(contacts);
+        Contact contact = (Contact) entityFactory.getContact(params);
+        boolean result = contactDAO.update(contact);
+        setChanged();
+        notifyObservers();
+        return result;
     }
 
-    public Set<Contact> getAll() {
-        return dao.getAll();
-    }
-
-    public Set<Contact> getByGroup(Group group) {
-        return getAll().stream().filter(x -> x.getGroup().equals(group)).collect(Collectors.toSet());
+    public Set<Map<String, Object>> getAll() {
+        Set<Map<String, Object>> all = new HashSet<>();
+        for (Contact contact : contactDAO.getAll()) {
+            Map<String, Object> contactMap = new HashMap<>();
+            contactMap.put("contactId", contact.getId());
+            contactMap.put("firstName", contact.getFirstName());
+            contactMap.put("lastName", contact.getLastName());
+            contactMap.put("phoneNumber", contact.getPhoneNumber());
+            contactMap.put("groupId", contact.getGroupId());
+            all.add(contactMap);
+        }
+        return all;
     }
 }

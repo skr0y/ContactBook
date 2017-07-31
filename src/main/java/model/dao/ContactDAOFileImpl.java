@@ -1,10 +1,7 @@
 package model.dao;
 
-import javafx.beans.InvalidationListener;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
 import model.entities.Contact;
-import util.Observer;
+import model.entities.Group;
 
 import java.io.*;
 import java.util.HashSet;
@@ -14,29 +11,12 @@ public class ContactDAOFileImpl implements ContactDAO {
     private final String DEFAULT_FILENAME = "contacts.db";
 
     private String fileName = DEFAULT_FILENAME;
-    private ObservableSet<Contact> contacts;
 
-    ContactDAOFileImpl() {
-        contacts = FXCollections.observableSet(new HashSet<Contact>());
-    }
-
-    public void addObserver(Observer observer) {
-        contacts.addListener((InvalidationListener) o -> observer.update(o));
-        load();
-    }
-
-    public boolean update(Set<Contact> contacts) {
-        this.contacts.clear();
-        this.contacts.addAll(contacts);
-        return save();
-    }
-
-    public boolean save() {
+    private boolean save(Set<Contact> contacts) {
         File dbFile = new File(fileName);
         try {
             dbFile.createNewFile();
-            try (FileOutputStream fos = new FileOutputStream(dbFile, false);
-                 ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(dbFile, false))) {
                 for (Contact contact : contacts) {
                     oos.writeObject(contact);
                 }
@@ -49,24 +29,60 @@ public class ContactDAOFileImpl implements ContactDAO {
         return true;
     }
 
-    public boolean load() {
-        try (FileInputStream fis = new FileInputStream(fileName);
-             ObjectInputStream ois = new ObjectInputStream(fis)) {
-            Contact input;
-            contacts.clear();
-            while ((input = (Contact)ois.readObject()) != null) {
-                contacts.add(input);
-            }
+    public boolean add(Contact contact) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName, true))) {
+            oos.writeObject(contact);
         } catch (Exception e) {
             return false;
         }
         return true;
     }
 
-    public Set<Contact> getAll() {
-        if (contacts.isEmpty()) {
-            load();
+    public boolean update(Contact contact) {
+        Set<Contact> contacts = getAll();
+        contacts.stream().filter(x -> x.getId() == contact.getId()).findFirst().ifPresent(contacts::remove);
+        contacts.add(contact);
+        return save(contacts);
+    }
+
+    public boolean delete(Contact contact) {
+        Set<Contact> contacts = getAll();
+        contacts.stream().filter(x -> x.getId() == contact.getId()).findFirst().ifPresent(contacts::remove);
+        return save(contacts);
+    }
+
+    public boolean deleteGroup(Group group) {
+        Set<Contact> contacts = getAll();
+        for (Contact contact : contacts) {
+            if (contact.getGroupId() == group.getId()) {
+                contact.removeGroup();
+            }
         }
+        return true;
+    }
+
+    public Contact get(int id) {
+        Set<Contact> contacts = getAll();
+        return contacts.stream().filter(x -> x.getId() == id).findFirst().orElse(null);
+    }
+
+    public Set<Contact> getAll() {
+        Set<Contact> contacts = new HashSet<>();
+        int lastId = 0;
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
+            Contact input;
+            while (true) {
+                input = (Contact)ois.readObject();
+                if (input == null) break;
+                contacts.add(input);
+                if (input.getId() > lastId) {
+                    lastId = input.getId();
+                }
+            }
+        } catch (Exception e) {
+            //
+        }
+        Contact.lastId = lastId;
         return contacts;
     }
 }

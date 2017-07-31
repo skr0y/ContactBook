@@ -1,14 +1,13 @@
 package model.dao;
 
 import model.entities.Group;
-import util.Observer;
 
 import java.util.Set;
 
 public interface GroupDAO {
-    void addObserver(Observer observer);
-    boolean load();
-    boolean save();
-    boolean update(Set<Group> groups);
+    boolean add(Group group);
+    boolean update(Group group);
+    boolean delete(Group group);
+    Group get(int id);
     Set<Group> getAll();
 }
