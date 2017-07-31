@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import util.StringUtils;
+import util.XmlUtils;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,6 +30,7 @@ public class ContactDAOXmlDomImpl implements ContactDAO {
     private final String DEFAULT_FILENAME = "contacts.xml";
 
     private String fileName = DEFAULT_FILENAME;
+    private String xsdFileName = "contacts.xsd";
 
     private static EntityFactory entityFactory = Model.getInstance().getEntityFactory();
 
@@ -149,6 +151,9 @@ public class ContactDAOXmlDomImpl implements ContactDAO {
     }
 
     public Set<Contact> getAll() {
+        if (!XmlUtils.xsdValidate(fileName, xsdFileName)) {
+            throw new IllegalArgumentException("Illegal XML format");
+        }
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
         Set<Contact> contacts = new HashSet<>();

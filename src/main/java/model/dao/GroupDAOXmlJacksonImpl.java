@@ -2,6 +2,7 @@ package model.dao;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import model.entities.Group;
+import util.XmlUtils;
 
 import javax.xml.stream.*;
 import java.io.FileInputStream;
@@ -13,6 +14,7 @@ public class GroupDAOXmlJacksonImpl implements GroupDAO {
     private final String DEFAULT_FILENAME = "groups.xml";
 
     private String fileName = DEFAULT_FILENAME;
+    private String xsdFileName = "groups.xsd";
 
     private XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
     private XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
@@ -62,6 +64,9 @@ public class GroupDAOXmlJacksonImpl implements GroupDAO {
     }
 
     public Set<Group> getAll() {
+        if (!XmlUtils.xsdValidate(fileName, xsdFileName)) {
+            throw new IllegalArgumentException("Illegal XML format");
+        }
         Set<Group> groups = new HashSet<>();
         int lastId = 0;
         XMLStreamReader xmlStreamReader = null;

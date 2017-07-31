@@ -7,6 +7,7 @@ import model.entities.Group;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import util.XmlUtils;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -19,6 +20,7 @@ public class GroupDAOXmlSaxImpl implements GroupDAO {
     private final String DEFAULT_FILENAME = "groups.xml";
 
     private String fileName = DEFAULT_FILENAME;
+    private String xsdFileName = "groups.xsd";
 
     private static EntityFactory entityFactory = Model.getInstance().getEntityFactory();
 
@@ -39,6 +41,9 @@ public class GroupDAOXmlSaxImpl implements GroupDAO {
     }
 
     public Set<Group> getAll() {
+        if (!XmlUtils.xsdValidate(fileName, xsdFileName)) {
+            throw new IllegalArgumentException("Illegal XML format");
+        }
         SAXParserFactory saxParserFactory;
         SAXParser saxParser;
         GroupHandler handler;

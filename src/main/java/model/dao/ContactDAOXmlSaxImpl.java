@@ -7,6 +7,7 @@ import model.entities.Group;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import util.XmlUtils;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -19,6 +20,7 @@ public class ContactDAOXmlSaxImpl implements ContactDAO {
     private final String DEFAULT_FILENAME = "contacts.xml";
 
     private String fileName = DEFAULT_FILENAME;
+    private String xsdFileName = "contacts.xsd";
 
     private static EntityFactory entityFactory = Model.getInstance().getEntityFactory();
 
@@ -43,6 +45,9 @@ public class ContactDAOXmlSaxImpl implements ContactDAO {
     }
 
     public Set<Contact> getAll() {
+        if (!XmlUtils.xsdValidate(fileName, xsdFileName)) {
+            throw new IllegalArgumentException("Illegal XML format");
+        }
         SAXParserFactory saxParserFactory;
         SAXParser saxParser;
         ContactHandler handler;

@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import util.StringUtils;
+import util.XmlUtils;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,6 +30,7 @@ public class GroupDAOXmlDomImpl implements GroupDAO {
     private final String DEFAULT_FILENAME = "groups.xml";
 
     private String fileName = DEFAULT_FILENAME;
+    private String xsdFileName = "groups.xsd";
 
     private static EntityFactory entityFactory = Model.getInstance().getEntityFactory();
 
@@ -121,6 +123,9 @@ public class GroupDAOXmlDomImpl implements GroupDAO {
     }
 
     public Set<Group> getAll() {
+        if (!XmlUtils.xsdValidate(fileName, xsdFileName)) {
+            throw new IllegalArgumentException("Illegal XML format");
+        }
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
         Set<Group> groups = new HashSet<>();

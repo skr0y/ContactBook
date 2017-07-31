@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import model.entities.Contact;
 import model.entities.Group;
+import util.XmlUtils;
 
 import javax.xml.stream.*;
 import java.io.FileInputStream;
@@ -15,6 +16,7 @@ public class ContactDAOXmlJacksonImpl implements ContactDAO {
     private final String DEFAULT_FILENAME = "contacts.xml";
 
     private String fileName = DEFAULT_FILENAME;
+    private String xsdFileName = "contacts.xsd";
 
     private XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
     private XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
@@ -75,6 +77,9 @@ public class ContactDAOXmlJacksonImpl implements ContactDAO {
     }
 
     public Set<Contact> getAll() {
+        if (!XmlUtils.xsdValidate(fileName, xsdFileName)) {
+            throw new IllegalArgumentException("Illegal XML format");
+        }
         int lastId = 0;
         Set<Contact> contacts = new HashSet<>();
         XMLStreamReader xmlStreamReader = null;
