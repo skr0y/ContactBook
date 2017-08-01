@@ -1,65 +1,83 @@
 package model.dao;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import util.PropertyUtils;
 
 public class DAOFactory {
-    private final String DEFAULT_DAO = "serialized";
-    private final String PROPERTIES_FILE = "config.properties";
+    private final DAOType DEFAULT_DAO = DAOType.SERIALIZED;
+    private final String PROPERTY_NAME = "daotype";
 
-    private String typeDAO = DEFAULT_DAO;
+    private DAOType daoType;
 
     public DAOFactory() {
-        Properties prop = new Properties();
-        try (InputStream input = new FileInputStream(PROPERTIES_FILE)) {
-            prop.load(input);
-            typeDAO = prop.getProperty("daotype");
-        } catch (IOException e) {
-            typeDAO = DEFAULT_DAO;
+        String propertyValue = PropertyUtils.readProperty(PROPERTY_NAME);
+        if (propertyValue == null) {
+            daoType = DEFAULT_DAO;
+        } else {
+            switch (propertyValue) {
+                case "serialized":
+                    daoType = DAOType.SERIALIZED;
+                    break;
+                case "xmldom":
+                    daoType = DAOType.XMLDOM;
+                    break;
+                case "xmlsax":
+                    daoType = DAOType.XMLSAX;
+                    break;
+                case "xmljackson":
+                    daoType = DAOType.XMLJACKSON;
+                    break;
+                default:
+                    throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", propertyValue));
+            }
         }
     }
 
     public GroupDAO getGroupDAO() {
         GroupDAO groupDAO = null;
-        switch (typeDAO) {
-            case "serialized":
+        switch (daoType) {
+            case SERIALIZED:
                 groupDAO = new GroupDAOFileImpl();
                 break;
-            case "xmldom":
+            case XMLDOM:
                 groupDAO = new GroupDAOXmlDomImpl();
                 break;
-            case "xmlsax":
+            case XMLSAX:
                 groupDAO = new GroupDAOXmlSaxImpl();
                 break;
-            case "xmljackson":
+            case XMLJACKSON:
                 groupDAO = new GroupDAOXmlJacksonImpl();
                 break;
             default:
-                throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", typeDAO));
+                throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", daoType));
         }
         return groupDAO;
     }
 
     public ContactDAO getContactDAO() {
         ContactDAO contactDAO = null;
-        switch (typeDAO) {
-            case "serialized":
+        switch (daoType) {
+            case SERIALIZED:
                 contactDAO = new ContactDAOFileImpl();
                 break;
-            case "xmldom":
+            case XMLDOM:
                 contactDAO = new ContactDAOXmlDomImpl();
                 break;
-            case "xmlsax":
+            case XMLSAX:
                 contactDAO = new ContactDAOXmlSaxImpl();
                 break;
-            case "xmljackson":
+            case XMLJACKSON:
                 contactDAO = new ContactDAOXmlJacksonImpl();
                 break;
             default:
-                throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", typeDAO));
+                throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", daoType));
         }
         return contactDAO;
+    }
+
+    public enum DAOType {
+        SERIALIZED,
+        XMLDOM,
+        XMLSAX,
+        XMLJACKSON
     }
 }
