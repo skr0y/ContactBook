@@ -13,6 +13,11 @@
             <artifactId>jackson-dataformat-xml</artifactId>
             <version>2.9.0</version>
         </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>RELEASE</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -23,6 +28,78 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>sql-maven-plugin</artifactId>
+                <version>RELEASE</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>RELEASE</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <driver>org.postgresql.Driver</driver>
+                    <username>postgres</username>
+                    <password>password</password>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>create-db</id>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <srcFiles>
+                                <srcFile>src/main/sql/create/Users.sql</srcFile>
+                                <srcFile>src/main/sql/create/Groups.sql</srcFile>
+                                <srcFile>src/main/sql/create/Contacts.sql</srcFile>
+                            </srcFiles>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>populate-db</id>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <srcFiles>
+                                <srcFile>src/main/sql/populate/PopulateWithTestData.sql</srcFile>
+                            </srcFiles>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>create-functions</id>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <srcFiles>
+                                <srcFile>src/main/sql/functions/AddContact.sql</srcFile>
+                                <srcFile>src/main/sql/functions/AddGroup.sql</srcFile>
+                                <srcFile>src/main/sql/functions/AddUser.sql</srcFile>
+                                <srcFile>src/main/sql/functions/AverageContactsPerGroup.sql</srcFile>
+                                <srcFile>src/main/sql/functions/AverageContactsPerUser.sql</srcFile>
+                                <srcFile>src/main/sql/functions/ContactsCountByUser.sql</srcFile>
+                                <srcFile>src/main/sql/functions/DeleteContact.sql</srcFile>
+                                <srcFile>src/main/sql/functions/DeleteGroup.sql</srcFile>
+                                <srcFile>src/main/sql/functions/DeleteUser.sql</srcFile>
+                                <srcFile>src/main/sql/functions/GroupsCountByUser.sql</srcFile>
+                                <srcFile>src/main/sql/functions/InactiveUsersCount.sql</srcFile>
+                                <srcFile>src/main/sql/functions/UpdateContact.sql</srcFile>
+                                <srcFile>src/main/sql/functions/UpdateGroup.sql</srcFile>
+                                <srcFile>src/main/sql/functions/UpdateUserPasswordById.sql</srcFile>
+                                <srcFile>src/main/sql/functions/UpdateUserPasswordByLogin.sql</srcFile>
+                                <srcFile>src/main/sql/functions/UserCount.sql</srcFile>
+                            </srcFiles>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
