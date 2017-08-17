@@ -31,8 +31,8 @@ public class GroupController extends Observable {
     }
 
     public boolean delete(Map<String, Object> params) {
-        Group group = groupDAO.get((int) params.get("groupId"));
-        boolean result = group != null && contactDAO.deleteGroup(group) && groupDAO.delete(group);
+        Group group = groupDAO.get((int) params.get("id"));
+        boolean result = group != null && contactDAO.deleteGroup(group.getId()) && groupDAO.delete(group);
         setChanged();
         notifyObservers();
         return result;
@@ -50,7 +50,7 @@ public class GroupController extends Observable {
         Set<Map<String, Object>> all = new HashSet<>();
         for (Group group : groupDAO.getAll()) {
             Map<String, Object> groupMap = new HashMap<>();
-            groupMap.put("groupId", group.getId());
+            groupMap.put("id", group.getId());
             groupMap.put("groupName", group.getGroupName());
             all.add(groupMap);
         }

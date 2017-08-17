@@ -1,11 +1,14 @@
 import controller.Controller;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import model.Model;
 import view.View;
+
+import java.io.IOException;
 
 public class Main extends Application {
     public static void main(String[] args) {
@@ -17,16 +20,26 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("menu.fxml"));
-        primaryStage.setTitle("Menu");
-        primaryStage.setScene(new Scene(root));
-        primaryStage.show();
+    public void start(Stage primaryStage) throws Exception {
+        Platform.runLater(new Runnable() {
+            public void run() {
+                showStage();
+                showStage();
+                showStage();
+            }
+        });
+    }
 
-        Parent secondary = FXMLLoader.load(getClass().getResource("contactList.fxml"));
-        Stage secondaryStage = new Stage();
-        secondaryStage.setTitle("Contacts");
-        secondaryStage.setScene(new Scene(secondary));
-        secondaryStage.show();
+    private void showStage() {
+        Parent root = null;
+        try {
+            root = FXMLLoader.load(getClass().getResource("login.fxml"));
+            Stage primaryStage = new Stage();
+            primaryStage.setTitle("Login");
+            primaryStage.setScene(new Scene(root));
+            primaryStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -1,7 +1,6 @@
 package model.dao;
 
 import model.entities.Contact;
-import model.entities.Group;
 
 import java.util.Set;
 
@@ -33,13 +32,13 @@ public interface ContactDAO {
 
     /**
      * Remove a group from all contacts
-     * @param group Group object to be removed
+     * @param groupId ID of a group that needs to be removed
      * @return True if operation succeeds
      */
-    boolean deleteGroup(Group group);
+    boolean deleteGroup(int groupId);
 
     /**
-     * Load a group from the storage by its ID
+     * Load a contact from the storage by its ID
      * @param id ID of the contact
      * @return Requested Contact object
      */

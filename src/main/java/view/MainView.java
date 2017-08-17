@@ -35,10 +35,12 @@ public class MainView {
     @FXML
     private ComboBox<Map<String, Object>> cmbGroup;
 
-    private Controller controller = View.getController();
+    private Controller controller;
 
     @FXML
     public void initialize(){
+        controller = View.getController();
+
         controller.getContactController().addObserver(new ContactsObserver());
         controller.getGroupController().addObserver(new GroupsObserver());
 
@@ -69,7 +71,7 @@ public class MainView {
 
     public void onSaveContactPressed(ActionEvent actionEvent) {
         Map<String, Object> params = new HashMap<>();
-        params.put("contactId", Integer.parseInt(lblContactID.getText()));
+        params.put("id", Integer.parseInt(lblContactID.getText()));
         params.put("firstName", txtFirstName.getText());
         params.put("lastName", txtLastName.getText());
         params.put("phoneNumber", txtPhone.getText());
@@ -83,7 +85,7 @@ public class MainView {
 
     public void onDeleteContactPressed(ActionEvent actionEvent) {
         Map<String, Object> params = new HashMap<>();
-        params.put("contactId", Integer.parseInt(lblContactID.getText()));
+        params.put("id", Integer.parseInt(lblContactID.getText()));
         params.put("firstName", txtFirstName.getText());
         params.put("lastName", txtLastName.getText());
         params.put("phoneNumber", txtPhone.getText());
@@ -100,7 +102,7 @@ public class MainView {
             return;
         }
         Map<String, Object> contact = lvContacts.getSelectionModel().getSelectedItem();
-        lblContactID.setText(Integer.toString((int)contact.get("contactId")));
+        lblContactID.setText(Integer.toString((int)contact.get("id")));
         txtFirstName.setText((String) contact.get("firstName"));
         txtLastName.setText((String) contact.get("lastName"));
         txtPhone.setText((String) contact.get("phoneNumber"));
@@ -117,7 +119,7 @@ public class MainView {
 
     public void onSaveGroupPressed(ActionEvent actionEvent) {
         Map<String, Object> params = new HashMap<>();
-        params.put("groupId", Integer.parseInt(lblGroupID.getText()));
+        params.put("id", Integer.parseInt(lblGroupID.getText()));
         params.put("groupName", txtGroupName.getText());
         if (!controller.getGroupController().update(params)) {
             showAlert("An error occurred while saving group");
@@ -126,7 +128,7 @@ public class MainView {
 
     public void onDeleteGroupPressed(ActionEvent actionEvent) {
         Map<String, Object> params = new HashMap<>();
-        params.put("groupId", Integer.parseInt(lblGroupID.getText()));
+        params.put("id", Integer.parseInt(lblGroupID.getText()));
         params.put("groupName", txtGroupName.getText());
         if (!controller.getGroupController().delete(params)) {
             showAlert("An error occurred while deleting group");
@@ -138,7 +140,7 @@ public class MainView {
             return;
         }
         Map<String, Object> group = lvGroups.getSelectionModel().getSelectedItem();
-        lblGroupID.setText(Integer.toString((int)group.get("groupId")));
+        lblGroupID.setText(Integer.toString((int)group.get("id")));
         txtGroupName.setText((String) group.get("groupName"));
     }
 
@@ -151,8 +153,8 @@ public class MainView {
 
     public void onGroupFilter(ActionEvent actionEvent) {
         if (!cmbGroupFilter.getSelectionModel().getSelectedItem().isEmpty()) {
-            int groupId = (int) cmbGroupFilter.getSelectionModel().getSelectedItem().get("groupId");
-            Set<Map<String, Object>> result = controller.getContactController().getAll().stream().filter(x -> ((int) x.get("groupId")) == groupId).collect(Collectors.toSet());
+            int groupId = (int) cmbGroupFilter.getSelectionModel().getSelectedItem().get("id");
+            Set<Map<String, Object>> result = controller.getContactController().getAll().stream().filter(x -> ((int) x.get("id")) == groupId).collect(Collectors.toSet());
             ObservableList<Map<String, Object>> list = FXCollections.observableArrayList(result);
             lvContacts.setItems(list);
         }
@@ -200,7 +202,11 @@ public class MainView {
             protected void updateItem(Map<String, Object> contact, boolean empty) {
                 super.updateItem(contact, empty);
                 if (contact != null) {
-                    setText(String.format("%1s %2s", contact.get("firstName"), contact.get("lastName")).trim());
+                    if (contact.get("lastName") == null) {
+                        setText((String) contact.get("firstName"));
+                    } else {
+                        setText(String.format("%1s %2s", contact.get("firstName"), contact.get("lastName")).trim());
+                    }
                 } else {
                     setText("");
                 }

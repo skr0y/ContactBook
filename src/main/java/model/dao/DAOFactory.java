@@ -3,7 +3,7 @@ package model.dao;
 import util.PropertyUtils;
 
 public class DAOFactory {
-    private final DAOType DEFAULT_DAO = DAOType.SERIALIZED;
+    private final DAOType DEFAULT_DAO = DAOType.DATABASE;
     private final String PROPERTY_NAME = "daotype";
 
     private DAOType daoType;
@@ -14,17 +14,8 @@ public class DAOFactory {
             daoType = DEFAULT_DAO;
         } else {
             switch (propertyValue) {
-                case "serialized":
-                    daoType = DAOType.SERIALIZED;
-                    break;
-                case "xmldom":
-                    daoType = DAOType.XMLDOM;
-                    break;
-                case "xmlsax":
-                    daoType = DAOType.XMLSAX;
-                    break;
-                case "xmljackson":
-                    daoType = DAOType.XMLJACKSON;
+                case "database":
+                    daoType = DAOType.DATABASE;
                     break;
                 default:
                     throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", propertyValue));
@@ -35,17 +26,8 @@ public class DAOFactory {
     public GroupDAO getGroupDAO() {
         GroupDAO groupDAO = null;
         switch (daoType) {
-            case SERIALIZED:
-                groupDAO = new GroupDAOFileImpl();
-                break;
-            case XMLDOM:
-                groupDAO = new GroupDAOXmlDomImpl();
-                break;
-            case XMLSAX:
-                groupDAO = new GroupDAOXmlSaxImpl();
-                break;
-            case XMLJACKSON:
-                groupDAO = new GroupDAOXmlJacksonImpl();
+            case DATABASE:
+                groupDAO = new GroupDAODatabaseImpl();
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", daoType));
@@ -56,17 +38,8 @@ public class DAOFactory {
     public ContactDAO getContactDAO() {
         ContactDAO contactDAO = null;
         switch (daoType) {
-            case SERIALIZED:
-                contactDAO = new ContactDAOFileImpl();
-                break;
-            case XMLDOM:
-                contactDAO = new ContactDAOXmlDomImpl();
-                break;
-            case XMLSAX:
-                contactDAO = new ContactDAOXmlSaxImpl();
-                break;
-            case XMLJACKSON:
-                contactDAO = new ContactDAOXmlJacksonImpl();
+            case DATABASE:
+                contactDAO = new ContactDAODatabaseImpl();
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", daoType));
@@ -74,10 +47,19 @@ public class DAOFactory {
         return contactDAO;
     }
 
+    public UserDAO getUserDAO() {
+        UserDAO userDAO = null;
+        switch (daoType) {
+            case DATABASE:
+                userDAO = new UserDAODatabaseImpl();
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", daoType));
+        }
+        return userDAO;
+    }
+
     public enum DAOType {
-        SERIALIZED,
-        XMLDOM,
-        XMLSAX,
-        XMLJACKSON
+        DATABASE
     }
 }

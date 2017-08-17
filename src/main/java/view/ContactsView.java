@@ -29,7 +29,11 @@ public class ContactsView {
             protected void updateItem(Map<String, Object> contact, boolean empty) {
                 super.updateItem(contact, empty);
                 if (contact != null) {
-                    setText(String.format("%1s %2s", contact.get("firstName"), contact.get("lastName")).trim());
+                    if (contact.get("lastName") == null) {
+                        setText((String) contact.get("firstName"));
+                    } else {
+                        setText(String.format("%1s %2s", contact.get("firstName"), contact.get("lastName")).trim());
+                    }
                 }
             }
         });

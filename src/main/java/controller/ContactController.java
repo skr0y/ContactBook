@@ -28,7 +28,7 @@ public class ContactController extends Observable {
     }
 
     public boolean delete(Map<String, Object> params) {
-        Contact contact = contactDAO.get((int) params.get("contactId"));
+        Contact contact = contactDAO.get((int) params.get("id"));
         boolean result = contact != null && contactDAO.delete(contact);
         setChanged();
         notifyObservers();
@@ -47,7 +47,7 @@ public class ContactController extends Observable {
         Set<Map<String, Object>> all = new HashSet<>();
         for (Contact contact : contactDAO.getAll()) {
             Map<String, Object> contactMap = new HashMap<>();
-            contactMap.put("contactId", contact.getId());
+            contactMap.put("id", contact.getId());
             contactMap.put("firstName", contact.getFirstName());
             contactMap.put("lastName", contact.getLastName());
             contactMap.put("phoneNumber", contact.getPhoneNumber());
