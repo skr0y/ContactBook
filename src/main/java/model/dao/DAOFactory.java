@@ -27,7 +27,7 @@ public class DAOFactory {
         GroupDAO groupDAO = null;
         switch (daoType) {
             case DATABASE:
-                groupDAO = new GroupDAODatabaseImpl();
+                groupDAO = GroupDAODatabaseImpl.getInstance();
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", daoType));
@@ -39,7 +39,7 @@ public class DAOFactory {
         ContactDAO contactDAO = null;
         switch (daoType) {
             case DATABASE:
-                contactDAO = new ContactDAODatabaseImpl();
+                contactDAO = ContactDAODatabaseImpl.getInstance();
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", daoType));
@@ -51,7 +51,7 @@ public class DAOFactory {
         UserDAO userDAO = null;
         switch (daoType) {
             case DATABASE:
-                userDAO = new UserDAODatabaseImpl();
+                userDAO = UserDAODatabaseImpl.getInstance();
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", daoType));

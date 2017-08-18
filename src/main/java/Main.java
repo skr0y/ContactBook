@@ -24,7 +24,17 @@ public class Main extends Application {
         Platform.runLater(new Runnable() {
             public void run() {
                 showStage();
+            }
+        });
+
+        Platform.runLater(new Runnable() {
+            public void run() {
                 showStage();
+            }
+        });
+
+        Platform.runLater(new Runnable() {
+            public void run() {
                 showStage();
             }
         });

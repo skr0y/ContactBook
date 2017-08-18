@@ -11,11 +11,20 @@ import java.util.Map;
 import java.util.Set;
 
 public class GroupDAODatabaseImpl implements GroupDAO {
+    private static GroupDAODatabaseImpl instance;
+
+    static synchronized GroupDAODatabaseImpl getInstance() {
+        if (instance == null) {
+            instance = new GroupDAODatabaseImpl();
+        }
+        return instance;
+    }
+
     private String url = "jdbc:postgresql:ContactDB";
     private String username = "postgres";
     private String password = "postgres";
 
-    GroupDAODatabaseImpl() {
+    private GroupDAODatabaseImpl() {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
@@ -102,9 +111,11 @@ public class GroupDAODatabaseImpl implements GroupDAO {
             Map<String, Object> params = new HashMap<>();
 
             try {
-                params.put("id", resultSet.getInt("GroupID"));
-                params.put("groupName", resultSet.getString("GroupName"));
-                params.put("userId", resultSet.getInt("UserID"));
+                if (resultSet.next()) {
+                    params.put("id", resultSet.getInt("GroupID"));
+                    params.put("groupName", resultSet.getString("GroupName"));
+                    params.put("userId", resultSet.getInt("UserID"));
+                }
             } catch (SQLException e) {
                 return null;
             }

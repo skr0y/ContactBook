@@ -11,11 +11,20 @@ import java.util.Map;
 import java.util.Set;
 
 public class UserDAODatabaseImpl implements UserDAO {
+    private static UserDAODatabaseImpl instance;
+
+    static synchronized UserDAODatabaseImpl getInstance() {
+        if (instance == null) {
+            instance = new UserDAODatabaseImpl();
+        }
+        return instance;
+    }
+
     private String url = "jdbc:postgresql:ContactDB";
     private String username = "postgres";
     private String password = "postgres";
 
-    UserDAODatabaseImpl() {
+    private UserDAODatabaseImpl() {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {

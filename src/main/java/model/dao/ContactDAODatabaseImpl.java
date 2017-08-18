@@ -11,11 +11,20 @@ import java.util.Map;
 import java.util.Set;
 
 public class ContactDAODatabaseImpl implements ContactDAO {
+    private static ContactDAODatabaseImpl instance;
+
+    static synchronized ContactDAODatabaseImpl getInstance() {
+        if (instance == null) {
+            instance = new ContactDAODatabaseImpl();
+        }
+        return instance;
+    }
+
     private String url = "jdbc:postgresql:ContactDB";
     private String username = "postgres";
     private String password = "postgres";
 
-    ContactDAODatabaseImpl() {
+    private ContactDAODatabaseImpl() {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
@@ -120,12 +129,14 @@ public class ContactDAODatabaseImpl implements ContactDAO {
             Map<String, Object> params = new HashMap<>();
 
             try {
-                params.put("id", resultSet.getInt("ContactID"));
-                params.put("firstName", resultSet.getString("FirstName"));
-                params.put("lastName", resultSet.getString("LastName"));
-                params.put("phoneNumber", resultSet.getString("PhoneNumber"));
-                params.put("groupId", resultSet.getInt("GroupID"));
-                params.put("userId", resultSet.getInt("UserID"));
+                if (resultSet.next()) {
+                    params.put("id", resultSet.getInt("ContactID"));
+                    params.put("firstName", resultSet.getString("FirstName"));
+                    params.put("lastName", resultSet.getString("LastName"));
+                    params.put("phoneNumber", resultSet.getString("PhoneNumber"));
+                    params.put("groupId", resultSet.getInt("GroupID"));
+                    params.put("userId", resultSet.getInt("UserID"));
+                }
             } catch (SQLException e) {
                 return null;
             }
