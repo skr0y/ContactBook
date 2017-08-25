@@ -27,10 +27,11 @@ public class GroupDAODatabaseImpl implements GroupDAO {
 
     public synchronized boolean add(Group group) {
         String query = "SELECT \"AddGroup\"(?, ?)";
+        Connection connection = null;
         try {
             InitialContext initContext = new InitialContext();
             DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            Connection connection = ds.getConnection();
+            connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, group.getGroupName());
             preparedStatement.setInt(2, group.getUserId());
@@ -38,16 +39,25 @@ public class GroupDAODatabaseImpl implements GroupDAO {
             group.setId(resultSet.getInt("GroupID"));
         } catch (Exception e) {
             return false;
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return true;
     }
 
     public synchronized boolean update(Group group) {
         String query = "SELECT \"UpdateGroup\"(?, ?, ?)";
+        Connection connection = null;
         try {
             InitialContext initContext = new InitialContext();
             DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            Connection connection = ds.getConnection();
+            connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, group.getId());
             preparedStatement.setString(2, group.getGroupName());
@@ -55,22 +65,39 @@ public class GroupDAODatabaseImpl implements GroupDAO {
             preparedStatement.executeUpdate();
         } catch (Exception e) {
             return false;
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return true;
     }
 
     public synchronized boolean delete(Group group) {
         String query = "SELECT \"DeleteGroup\"(?, ?)";
+        Connection connection = null;
         try {
             InitialContext initContext = new InitialContext();
             DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            Connection connection = ds.getConnection();
+            connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, group.getUserId());
             preparedStatement.setInt(2, group.getId());
             preparedStatement.executeUpdate();
         } catch (Exception e) {
             return false;
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return true;
     }
@@ -78,16 +105,25 @@ public class GroupDAODatabaseImpl implements GroupDAO {
     public synchronized Group get(int id) {
         Group group = null;
         String query = "SELECT * FROM \"Groups\" WHERE \"GroupID\" = ?";
+        Connection connection = null;
         try {
             InitialContext initContext = new InitialContext();
             DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            Connection connection = ds.getConnection();
+            connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             group = new GroupMapper().getGroup(resultSet);
         } catch (Exception e) {
             return null;
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return group;
     }
@@ -96,10 +132,11 @@ public class GroupDAODatabaseImpl implements GroupDAO {
         Set<Group> groups = new HashSet<>();
         String query = "SELECT * FROM \"Groups\"";
         GroupMapper mapper = new GroupMapper();
+        Connection connection = null;
         try {
             InitialContext initContext = new InitialContext();
             DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            Connection connection = ds.getConnection();
+            connection = ds.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
@@ -107,6 +144,14 @@ public class GroupDAODatabaseImpl implements GroupDAO {
             }
         } catch (Exception e) {
             return null;
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return groups;
     }
