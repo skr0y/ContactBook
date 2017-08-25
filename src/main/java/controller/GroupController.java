@@ -6,9 +6,13 @@ import model.dao.GroupDAO;
 import model.entities.EntityFactory;
 import model.entities.Group;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class GroupController extends Observable {
+public class GroupController {
     private Model model;
 
     private GroupDAO groupDAO;
@@ -24,26 +28,17 @@ public class GroupController extends Observable {
 
     public boolean add(Map<String, Object> params) {
         Group group = (Group) entityFactory.getGroup(params);
-        boolean result = groupDAO.add(group);
-        setChanged();
-        notifyObservers();
-        return result;
+        return groupDAO.add(group);
     }
 
-    public boolean delete(Map<String, Object> params) {
-        Group group = groupDAO.get((int) params.get("id"));
-        boolean result = group != null && contactDAO.deleteGroup(group.getId()) && groupDAO.delete(group);
-        setChanged();
-        notifyObservers();
-        return result;
+    public boolean delete(int groupId) {
+        Group group = groupDAO.get(groupId);
+        return group != null && contactDAO.deleteGroup(group.getId()) && groupDAO.delete(group);
     }
 
     public boolean update(Map<String, Object> params) {
         Group group = (Group) entityFactory.getGroup(params);
-        boolean result = groupDAO.update(group);
-        setChanged();
-        notifyObservers();
-        return result;
+        return groupDAO.update(group);
     }
 
     public Set<Map<String, Object>> getAll() {
@@ -55,5 +50,9 @@ public class GroupController extends Observable {
             all.add(groupMap);
         }
         return all;
+    }
+
+    public Set<Map<String, Object>> getAll(int userId) {
+        return getAll().stream().filter(x -> (int) x.get("userId") == userId).collect(Collectors.toSet());
     }
 }

@@ -5,9 +5,13 @@ import model.dao.ContactDAO;
 import model.entities.Contact;
 import model.entities.EntityFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class ContactController extends Observable {
+public class ContactController {
     private Model model;
 
     private ContactDAO contactDAO;
@@ -21,26 +25,17 @@ public class ContactController extends Observable {
 
     public boolean add(Map<String, Object> params) {
         Contact newContact = (Contact) entityFactory.getContact(params);
-        boolean result = contactDAO.add(newContact);
-        setChanged();
-        notifyObservers();
-        return result;
+        return contactDAO.add(newContact);
     }
 
-    public boolean delete(Map<String, Object> params) {
-        Contact contact = contactDAO.get((int) params.get("id"));
-        boolean result = contact != null && contactDAO.delete(contact);
-        setChanged();
-        notifyObservers();
-        return result;
+    public boolean delete(int contactId) {
+        Contact contact = contactDAO.get(contactId);
+        return contact != null && contactDAO.delete(contact);
     }
 
     public boolean update(Map<String, Object> params) {
         Contact contact = (Contact) entityFactory.getContact(params);
-        boolean result = contactDAO.update(contact);
-        setChanged();
-        notifyObservers();
-        return result;
+        return contactDAO.update(contact);
     }
 
     public Set<Map<String, Object>> getAll() {
@@ -55,5 +50,9 @@ public class ContactController extends Observable {
             all.add(contactMap);
         }
         return all;
+    }
+
+    public Set<Map<String, Object>> getAll(int userId) {
+        return getAll().stream().filter(x -> (int) x.get("userId") == userId).collect(Collectors.toSet());
     }
 }

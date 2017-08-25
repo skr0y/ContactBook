@@ -4,7 +4,12 @@ import model.Model;
 import model.entities.EntityFactory;
 import model.entities.User;
 
-import java.sql.*;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -20,27 +25,18 @@ public class UserDAODatabaseImpl implements UserDAO {
         return instance;
     }
 
-    private String url = "jdbc:postgresql:ContactDB";
-    private String username = "postgres";
-    private String password = "postgres";
-
-    private UserDAODatabaseImpl() {
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
     public synchronized boolean add(User user) {
         String query = "SELECT \"AddUser\"(?, ?)";
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try {
+            InitialContext initContext = new InitialContext();
+            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
+            Connection connection = ds.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, user.getLogin());
             preparedStatement.setString(2, user.getPassword());
             ResultSet resultSet = preparedStatement.executeQuery();
             user.setId(resultSet.getInt("UserID"));
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return false;
         }
         return true;
@@ -48,12 +44,15 @@ public class UserDAODatabaseImpl implements UserDAO {
 
     public synchronized boolean update(User user) {
         String query = "SELECT \"UpdateUserPasswordById\"(?, ?)";
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try {
+            InitialContext initContext = new InitialContext();
+            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
+            Connection connection = ds.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, user.getId());
             preparedStatement.setString(2, user.getPassword());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return false;
         }
         return true;
@@ -61,11 +60,14 @@ public class UserDAODatabaseImpl implements UserDAO {
 
     public synchronized boolean delete(User user) {
         String query = "SELECT \"DeleteUser\"(?)";
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try {
+            InitialContext initContext = new InitialContext();
+            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
+            Connection connection = ds.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, user.getId());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return false;
         }
         return true;
@@ -74,33 +76,39 @@ public class UserDAODatabaseImpl implements UserDAO {
     public synchronized User get(int id) {
         User user = null;
         String query = "SELECT * FROM \"Users\" WHERE \"UserID\" = ?";
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try {
+            InitialContext initContext = new InitialContext();
+            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
+            Connection connection = ds.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             user = new UserMapper().getUser(resultSet);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return null;
         }
         return user;
     }
 
-    public synchronized User getByLogin(String login) {
+    public synchronized User get(String login) {
         User user = null;
         String query = "SELECT * FROM \"Users\" WHERE \"Login\" = ?";
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try {
+            InitialContext initContext = new InitialContext();
+            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
+            Connection connection = ds.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, login);
             ResultSet resultSet = preparedStatement.executeQuery();
             user = new UserMapper().getUser(resultSet);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return null;
         }
         return user;
     }
 
     public boolean checkCredentials(String login, String password) {
-        User user = getByLogin(login);
+        User user = get(login);
         return user != null && user.getPassword().equals(password);
     }
 
@@ -109,13 +117,16 @@ public class UserDAODatabaseImpl implements UserDAO {
         String query = "SELECT * FROM \"Users\"";
         UserMapper mapper = new UserMapper();
 
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try {
+            InitialContext initContext = new InitialContext();
+            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
+            Connection connection = ds.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 users.add(mapper.getUser(resultSet));
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return null;
         }
         return users;

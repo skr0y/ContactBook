@@ -18,14 +18,14 @@ public interface UserDAO {
 
     /**
      * Update a user in the storage
-     * @param user User object to be added
+     * @param user User object to be updated
      * @return True if operation succeeds
      */
     boolean update(User user);
 
     /**
      * Delete a user from the storage
-     * @param user User object to be added
+     * @param user User object to be deleted
      * @return True if operation succeeds
      */
     boolean delete(User user);
@@ -42,7 +42,7 @@ public interface UserDAO {
      * @param login user login
      * @return Requested User object
      */
-    User getByLogin(String login);
+    User get(String login);
 
     /**
      * Checks if login-password combination is valid

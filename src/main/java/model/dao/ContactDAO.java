@@ -18,14 +18,14 @@ public interface ContactDAO {
 
     /**
      * Update a contact in the storage
-     * @param contact Contact object to be added
+     * @param contact Contact object to be updated
      * @return True if operation succeeds
      */
     boolean update(Contact contact);
 
     /**
      * Delete a contact from the storage
-     * @param contact Contact object to be added
+     * @param contact Contact object to be deleted
      * @return True if operation succeeds
      */
     boolean delete(Contact contact);

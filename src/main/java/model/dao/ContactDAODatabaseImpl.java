@@ -4,7 +4,12 @@ import model.Model;
 import model.entities.Contact;
 import model.entities.EntityFactory;
 
-import java.sql.*;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -20,22 +25,13 @@ public class ContactDAODatabaseImpl implements ContactDAO {
         return instance;
     }
 
-    private String url = "jdbc:postgresql:ContactDB";
-    private String username = "postgres";
-    private String password = "postgres";
-
-    private ContactDAODatabaseImpl() {
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
     public synchronized boolean add(Contact contact) {
         String query = "SELECT \"AddContact\"(?, ?, ?, ?, ?)";
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try {
+            InitialContext initContext = new InitialContext();
+            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
+            Connection connection = ds.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, contact.getUserId());
             preparedStatement.setString(2, contact.getFirstName());
             preparedStatement.setString(3, contact.getLastName());
@@ -43,7 +39,7 @@ public class ContactDAODatabaseImpl implements ContactDAO {
             preparedStatement.setInt(5, contact.getGroupId());
             ResultSet resultSet = preparedStatement.executeQuery();
             contact.setId(resultSet.getInt("ContactID"));
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return false;
         }
         return true;
@@ -51,8 +47,11 @@ public class ContactDAODatabaseImpl implements ContactDAO {
 
     public synchronized boolean update(Contact contact) {
         String query = "SELECT \"UpdateContact\"(?, ?, ?, ?, ?, ?)";
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try {
+            InitialContext initContext = new InitialContext();
+            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
+            Connection connection = ds.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, contact.getId());
             preparedStatement.setInt(2, contact.getUserId());
             preparedStatement.setString(3, contact.getFirstName());
@@ -60,7 +59,7 @@ public class ContactDAODatabaseImpl implements ContactDAO {
             preparedStatement.setString(5, contact.getPhoneNumber());
             preparedStatement.setInt(6, contact.getGroupId());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return false;
         }
         return true;
@@ -68,12 +67,15 @@ public class ContactDAODatabaseImpl implements ContactDAO {
 
     public synchronized boolean delete(Contact contact) {
         String query = "SELECT \"DeleteContact\"(?, ?)";
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try {
+            InitialContext initContext = new InitialContext();
+            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
+            Connection connection = ds.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, contact.getUserId());
             preparedStatement.setInt(2, contact.getId());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return false;
         }
         return true;
@@ -81,11 +83,14 @@ public class ContactDAODatabaseImpl implements ContactDAO {
 
     public synchronized boolean deleteGroup(int groupId) {
         String query = "SELECT \"RemoveGroupIdFromContacts\"(?)";
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try {
+            InitialContext initContext = new InitialContext();
+            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
+            Connection connection = ds.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, groupId);
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return false;
         }
         return true;
@@ -94,12 +99,15 @@ public class ContactDAODatabaseImpl implements ContactDAO {
     public synchronized Contact get(int id) {
         Contact contact = null;
         String query = "SELECT * FROM \"Contacts\" WHERE \"ContactID\" = ?";
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try {
+            InitialContext initContext = new InitialContext();
+            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
+            Connection connection = ds.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             contact = new ContactMapper().getContact(resultSet);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return null;
         }
         return contact;
@@ -109,14 +117,16 @@ public class ContactDAODatabaseImpl implements ContactDAO {
         Set<Contact> contacts = new HashSet<>();
         String query = "SELECT * FROM \"Contacts\"";
         ContactMapper mapper = new ContactMapper();
-
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try {
+            InitialContext initContext = new InitialContext();
+            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
+            Connection connection = ds.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 contacts.add(mapper.getContact(resultSet));
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return null;
         }
         return contacts;

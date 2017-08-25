@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <Resource name="jdbc/postgres"
+              auth="Container"
+              description="DB Connection"
+              username="postgres"
+              password="postgres"
+              type="javax.sql.DataSource"
+              driverClassName="org.postgresql.Driver"
+              url="jdbc:postgresql:ContactDB"/>
+</Context>
