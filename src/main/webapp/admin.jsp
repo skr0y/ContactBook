@@ -6,10 +6,6 @@
 <body>
     <%
         AdminController controller = View.getController().getAdminController();
-        for (User users ) {
-            preparedStatement.setInt(1, user.get("id"));
-            groupsCountByUser.put(user.get("id"), resultSet.getInt(1));
-        }
     %>
     Total user count: <%=controller.totalUsers()%> </br>
     Average contacts per group = <%=controller.averageContactsPerGroup()%> </br>
