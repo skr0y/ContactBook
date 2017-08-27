@@ -59,6 +59,18 @@ public class DAOFactory {
         return userDAO;
     }
 
+    public AdminDAO getAdminDAO() {
+        AdminDAO adminDAO = null;
+        switch (daoType) {
+            case DATABASE:
+                adminDAO = AdminDAODatabaseImpl.getInstance();
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Unsupported DAO type: %1s", daoType));
+        }
+        return adminDAO;
+    }
+
     public enum DAOType {
         DATABASE
     }
