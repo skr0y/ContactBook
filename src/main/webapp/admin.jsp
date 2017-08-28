@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="controller.AdminController" %>
+<%@ page import="view.View" %>
 <html>
 <head>
     <title>Login</title>
