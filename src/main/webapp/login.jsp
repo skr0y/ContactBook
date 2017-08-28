@@ -5,8 +5,8 @@
 </head>
 <body>
     <form method="post" id="Form">
-        <input name="login" placeholder="Login"/>
-        <input type="password" name="password" placeholder="Password"/>
+        <input name="login" placeholder="Login"/></br>
+        <input type="password" name="password" placeholder="Password"/></br>
         <input type="submit"/>
     </form>
 </body>

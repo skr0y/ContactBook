@@ -17,6 +17,16 @@
                 <td><form method="post"><input type="submit" name="deleteContact" value="${contact.get(\"id\")}"/>DELETE</form></td>
             </tr>
         </c:forEach>
+            <tr>
+                <form method="post">
+                <td>Add new contact: </td>
+                <td><input name="newFirstName" placeholder="First name"/></td>
+                <td><input name="newLastName" placeholder="Last name"/></td>
+                <td><input name="newPhoneNumber" placeholder="Phone number"/></td>
+                <td><input type="submit">ADD</input></td>
+                </form>
+                <td></td>
+            </tr>
     </table>
     <table>
         <c:forEach items="${groups}" var="group">
@@ -29,6 +39,14 @@
                 <td><form method="post"><input type="submit" name="deleteGroup" value="${group.get(\"id\")}"/>DELETE</form></td>
             </tr>
         </c:forEach>
+            <tr>
+                <form method="post">
+                <td>Add new group: </td>
+                <td><input name="newGroupName"/></td>
+                <td><input type="submit">ADD</input></td>
+                </form>
+                <td></td>
+            </tr>
     </table>
 </body>
 </html>

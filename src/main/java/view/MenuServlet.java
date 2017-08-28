@@ -38,12 +38,27 @@ public class MenuServlet extends HttpServlet {
             contact.put("lastName", req.getAttribute("lastName"));
             contact.put("phoneNumber", req.getAttribute("phoneNumber"));
             contact.put("userId", userId);
-            controller.getContactController().add(contact);
+            controller.getContactController().update(contact);
         }
         if (req.getAttribute("groupId") != null) {
             Map<String, Object> group = new HashMap<>();
             group.put("id", req.getAttribute("groupId"));
             group.put("groupName", req.getAttribute("groupName"));
+            group.put("userId", userId);
+            controller.getGroupController().update(group);
+        }
+
+        if (req.getAttribute("newFirstName") != null) {
+            Map<String, Object> contact = new HashMap<>();
+            contact.put("firstName", req.getAttribute("newFirstName"));
+            contact.put("lastName", req.getAttribute("newLastName"));
+            contact.put("phoneNumber", req.getAttribute("newPhoneNumber"));
+            contact.put("userId", userId);
+            controller.getContactController().add(contact);
+        }
+        if (req.getAttribute("newGroupName") != null) {
+            Map<String, Object> group = new HashMap<>();
+            group.put("groupName", req.getAttribute("newGroupName"));
             group.put("userId", userId);
             controller.getGroupController().add(group);
         }
