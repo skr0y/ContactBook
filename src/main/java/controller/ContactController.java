@@ -46,7 +46,7 @@ public class ContactController {
             contactMap.put("firstName", contact.getFirstName());
             contactMap.put("lastName", contact.getLastName());
             contactMap.put("phoneNumber", contact.getPhoneNumber());
-            contactMap.put("groupId", contact.getGroupId());
+            contactMap.put("groupId", contact.getGroup().getId());
             all.add(contactMap);
         }
         return all;

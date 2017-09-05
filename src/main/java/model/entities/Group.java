@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class Group extends Entity implements Serializable {
     private int id;
     private String groupName;
-    private int userId;
+    private User user;
 
     @Id
     @SequenceGenerator(name = "seq_gen_group", sequenceName = "Groups_GroupID_seq")
@@ -32,12 +32,13 @@ public class Group extends Entity implements Serializable {
         this.groupName = groupName;
     }
 
-    @Column(name = "UserID", nullable = false)
-    public int getUserId() {
-        return userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "UserID", nullable = false)
+    public User getUser() {
+        return user;
     }
 
-    void setUserId(int userId) {
-        this.userId = userId;
+    void setUser(User user) {
+        this.user = user;
     }
 }

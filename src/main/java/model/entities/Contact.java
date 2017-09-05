@@ -10,8 +10,8 @@ public class Contact extends Entity implements Serializable {
     private String firstName;
     private String lastName;
     private String phoneNumber;
-    private int groupId = -1;
-    private int userId = -1;
+    private Group group;
+    private User user;
 
     @Id
     @SequenceGenerator(name = "seq_gen_contact", sequenceName = "Contacts_ContactID_seq")
@@ -53,23 +53,23 @@ public class Contact extends Entity implements Serializable {
         this.phoneNumber = phoneNumber;
     }
 
-    @Column(name = "GroupID")
-    public int getGroupId() {
-        return groupId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "GroupID")
+    public Group getGroup() {
+        return group;
     }
 
-    void setGroupId(int groupId) {
-        this.groupId = groupId;
+    void setGroupId(Group group) {
+        this.group = group;
     }
 
-    public void removeGroup() { this.groupId = -1; }
-
-    @Column(name = "UserID", nullable = false)
-    public int getUserId() {
-        return userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "UserID", nullable = false)
+    public User getUser() {
+        return user;
     }
 
-    void setUserId(int userId) {
-        this.userId = userId;
+    void setUser(User user) {
+        this.user = user;
     }
 }
