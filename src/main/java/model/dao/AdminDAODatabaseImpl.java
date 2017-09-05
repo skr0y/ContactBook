@@ -1,11 +1,9 @@
 package model.dao;
 
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.NativeQuery;
+import view.ContextListener;
 
 public class AdminDAODatabaseImpl implements AdminDAO {
     private static AdminDAODatabaseImpl instance;
@@ -17,157 +15,95 @@ public class AdminDAODatabaseImpl implements AdminDAO {
         return instance;
     }
 
+    private SessionFactory sessionFactory = ContextListener.getSessionFactory();
+
     public synchronized int totalUsers() {
-        String query = "SELECT \"UserCount\"()";
+        String queryString = "SELECT \"UserCount\"()";
         int result = 0;
-        Connection connection = null;
-        try {
-            InitialContext initContext = new InitialContext();
-            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            result = resultSet.getInt(1);
-        } catch (Exception e) {
-            return result;
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        NativeQuery query = session.createNativeQuery(queryString);
+        result = (int) query.getSingleResult();
+
+        session.getTransaction().commit();
+        session.close();
         return result;
     }
 
     public synchronized int contactsCountByUser(int userId) {
-        String query = "SELECT \"ContactsCountByUser\"(?)";
+        String queryString = "SELECT \"ContactsCountByUser\"(:userid)";
         int result = 0;
-        Connection connection = null;
-        try {
-            InitialContext initContext = new InitialContext();
-            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, userId);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-            result = resultSet.getInt(1);
-        } catch (Exception e) {
-            return result;
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        NativeQuery query = session.createNativeQuery(queryString).setParameter("userid", userId);
+        result = (int) query.getSingleResult();
+
+        session.getTransaction().commit();
+        session.close();
         return result;
     }
 
     public synchronized int groupsCountByUser(int userId) {
-        String query = "SELECT \"GroupsCountByUser\"(?)";
+        String queryString = "SELECT \"GroupsCountByUser\"(:userid)";
         int result = 0;
-        Connection connection = null;
-        try {
-            InitialContext initContext = new InitialContext();
-            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, userId);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-            result = resultSet.getInt(1);
-        } catch (Exception e) {
-            return result;
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        NativeQuery query = session.createNativeQuery(queryString).setParameter("userid", userId);
+        result = (int) query.getSingleResult();
+
+        session.getTransaction().commit();
+        session.close();
         return result;
     }
 
     public synchronized int averageContactsPerGroup() {
-        String query = "SELECT \"AverageContactsPerGroup\"()";
+        String queryString = "SELECT \"AverageContactsPerGroup\"()";
         int result = 0;
-        Connection connection = null;
-        try {
-            InitialContext initContext = new InitialContext();
-            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            result = resultSet.getInt(1);
-        } catch (Exception e) {
-            return result;
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        NativeQuery query = session.createNativeQuery(queryString);
+        result = (int) query.getSingleResult();
+
+        session.getTransaction().commit();
+        session.close();
         return result;
     }
 
     public synchronized int averageContactsPerUser() {
-        String query = "SELECT \"AverageContactsPerUser\"()";
+        String queryString = "SELECT \"AverageContactsPerUser\"()";
         int result = 0;
-        Connection connection = null;
-        try {
-            InitialContext initContext = new InitialContext();
-            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            result = resultSet.getInt(1);
-        } catch (Exception e) {
-            return result;
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        NativeQuery query = session.createNativeQuery(queryString);
+        result = (int) query.getSingleResult();
+
+        session.getTransaction().commit();
+        session.close();
         return result;
     }
 
     public synchronized int inactiveUsersCount() {
-        String query = "SELECT \"InactiveUsersCount\"()";
+        String queryString = "SELECT \"InactiveUsersCount\"()";
         int result = 0;
-        Connection connection = null;
-        try {
-            InitialContext initContext = new InitialContext();
-            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            result = resultSet.getInt(1);
-        } catch (Exception e) {
-            return result;
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        NativeQuery query = session.createNativeQuery(queryString);
+        result = (int) query.getSingleResult();
+
+        session.getTransaction().commit();
+        session.close();
         return result;
     }
 }

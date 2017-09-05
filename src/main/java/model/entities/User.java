@@ -1,10 +1,18 @@
 package model.entities;
 
+import javax.persistence.*;
+
+@javax.persistence.Entity
+@Table(name = "Users")
 public class User extends Entity {
     private int id;
     private String login;
     private String password;
 
+    @Id
+    @SequenceGenerator(name = "seq_gen_user", sequenceName = "Users_UserID_seq")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator="seq_gen_user")
+    @Column(name = "UserID", nullable = false, unique = true)
     public int getId() {
         return id;
     }
@@ -13,6 +21,7 @@ public class User extends Entity {
         this.id = id;
     }
 
+    @Column(name = "Login", nullable = false, unique = true)
     public String getLogin() {
         return login;
     }
@@ -24,6 +33,7 @@ public class User extends Entity {
         this.login = login;
     }
 
+    @Column(name = "Password", nullable = false)
     public String getPassword() {
         return password;
     }

@@ -1,18 +1,13 @@
 package model.dao;
 
-import model.Model;
 import model.entities.Contact;
-import model.entities.EntityFactory;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.query.Query;
+import view.ContextListener;
 
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class ContactDAODatabaseImpl implements ContactDAO {
@@ -25,188 +20,73 @@ public class ContactDAODatabaseImpl implements ContactDAO {
         return instance;
     }
 
+    private SessionFactory sessionFactory = ContextListener.getSessionFactory();
+
     public synchronized boolean add(Contact contact) {
-        String query = "SELECT \"AddContact\"(?, ?, ?, ?, ?)";
-        Connection connection = null;
-        try {
-            InitialContext initContext = new InitialContext();
-            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, contact.getUserId());
-            preparedStatement.setString(2, contact.getFirstName());
-            preparedStatement.setString(3, contact.getLastName());
-            preparedStatement.setString(4, contact.getPhoneNumber());
-            preparedStatement.setInt(5, contact.getGroupId());
-            ResultSet resultSet = preparedStatement.executeQuery();
-            contact.setId(resultSet.getInt("ContactID"));
-        } catch (Exception e) {
-            return false;
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        session.save(contact);
+
+        session.getTransaction().commit();
+        session.close();
         return true;
     }
 
     public synchronized boolean update(Contact contact) {
-        String query = "SELECT \"UpdateContact\"(?, ?, ?, ?, ?, ?)";
-        Connection connection = null;
-        try {
-            InitialContext initContext = new InitialContext();
-            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, contact.getId());
-            preparedStatement.setInt(2, contact.getUserId());
-            preparedStatement.setString(3, contact.getFirstName());
-            preparedStatement.setString(4, contact.getLastName());
-            preparedStatement.setString(5, contact.getPhoneNumber());
-            preparedStatement.setInt(6, contact.getGroupId());
-            preparedStatement.executeUpdate();
-        } catch (Exception e) {
-            return false;
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        session.update(contact);
+
+        session.getTransaction().commit();
+        session.close();
         return true;
     }
 
     public synchronized boolean delete(Contact contact) {
-        String query = "SELECT \"DeleteContact\"(?, ?)";
-        Connection connection = null;
-        try {
-            InitialContext initContext = new InitialContext();
-            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, contact.getUserId());
-            preparedStatement.setInt(2, contact.getId());
-            preparedStatement.executeUpdate();
-        } catch (Exception e) {
-            return false;
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        session.delete(contact);
+
+        session.getTransaction().commit();
+        session.close();
         return true;
     }
 
     public synchronized boolean deleteGroup(int groupId) {
-        String query = "SELECT \"RemoveGroupIdFromContacts\"(?)";
-        Connection connection = null;
-        try {
-            InitialContext initContext = new InitialContext();
-            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, groupId);
-            preparedStatement.executeUpdate();
-        } catch (Exception e) {
-            return false;
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        NativeQuery nativeQuery = session.createNativeQuery("SELECT \"RemoveGroupIdFromContacts\"(:id)");
+        nativeQuery.setParameter("id", groupId);
+
+        session.getTransaction().commit();
+        session.close();
         return true;
     }
 
     public synchronized Contact get(int id) {
-        Contact contact = null;
-        String query = "SELECT * FROM \"Contacts\" WHERE \"ContactID\" = ?";
-        Connection connection = null;
-        try {
-            InitialContext initContext = new InitialContext();
-            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            contact = new ContactMapper().getContact(resultSet);
-        } catch (Exception e) {
-            return null;
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        Contact contact = session.get(Contact.class, id);
+
+        session.getTransaction().commit();
+        session.close();
         return contact;
     }
 
     public synchronized Set<Contact> getAll() {
-        Set<Contact> contacts = new HashSet<>();
-        String query = "SELECT * FROM \"Contacts\"";
-        ContactMapper mapper = new ContactMapper();
-        Connection connection = null;
-        try {
-            InitialContext initContext = new InitialContext();
-            DataSource ds = (DataSource) initContext.lookup("java:comp/env/jdbc/postgres");
-            connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                contacts.add(mapper.getContact(resultSet));
-            }
-        } catch (Exception e) {
-            return null;
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        Query query = session.createQuery("FROM Contacts");
+        Set<Contact> contacts = new HashSet<>(query.list());
+
+        session.getTransaction().commit();
+        session.close();
         return contacts;
-    }
-
-    private class ContactMapper {
-        Contact getContact(ResultSet resultSet) {
-            EntityFactory entityFactory = Model.getInstance().getEntityFactory();
-            Contact contact = null;
-            Map<String, Object> params = new HashMap<>();
-
-            try {
-                if (resultSet.next()) {
-                    params.put("id", resultSet.getInt("ContactID"));
-                    params.put("firstName", resultSet.getString("FirstName"));
-                    params.put("lastName", resultSet.getString("LastName"));
-                    params.put("phoneNumber", resultSet.getString("PhoneNumber"));
-                    params.put("groupId", resultSet.getInt("GroupID"));
-                    params.put("userId", resultSet.getInt("UserID"));
-                }
-            } catch (SQLException e) {
-                return null;
-            }
-
-            contact = (Contact) entityFactory.getContact(params);
-            return contact;
-        }
     }
 }
