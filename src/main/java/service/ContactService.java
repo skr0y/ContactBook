@@ -38,6 +38,18 @@ public class ContactService {
         return contactDAO.update(contact);
     }
 
+    public Map<String, Object> get(int id) {
+        Contact contact = contactDAO.get(id);
+        Map<String, Object> contactMap = new HashMap<>();
+        contactMap.put("id", contact.getId());
+        contactMap.put("firstName", contact.getFirstName());
+        contactMap.put("lastName", contact.getLastName());
+        contactMap.put("phoneNumber", contact.getPhoneNumber());
+        contactMap.put("groupId", contact.getGroupId());
+        contactMap.put("userId", contact.getUserId());
+        return contactMap;
+    }
+
     public List<Map<String, Object>> getAll() {
         List<Map<String, Object>> all = new ArrayList<>();
         for (Contact contact : contactDAO.getAll()) {
@@ -46,7 +58,8 @@ public class ContactService {
             contactMap.put("firstName", contact.getFirstName());
             contactMap.put("lastName", contact.getLastName());
             contactMap.put("phoneNumber", contact.getPhoneNumber());
-            contactMap.put("groupId", contact.getGroup().getId());
+            contactMap.put("groupId", contact.getGroupId());
+            contactMap.put("userId", contact.getUserId());
             all.add(contactMap);
         }
         return all;

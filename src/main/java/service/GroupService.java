@@ -42,12 +42,22 @@ public class GroupService {
         return groupDAO.update(group);
     }
 
+    public Map<String, Object> get(int id) {
+        Group group = groupDAO.get(id);
+        Map<String, Object> groupMap = new HashMap<>();
+        groupMap.put("id", group.getId());
+        groupMap.put("groupName", group.getGroupName());
+        groupMap.put("userId", group.getUserId());
+        return groupMap;
+    }
+
     public List<Map<String, Object>> getAll() {
         List<Map<String, Object>> all = new ArrayList<>();
         for (Group group : groupDAO.getAll()) {
             Map<String, Object> groupMap = new HashMap<>();
             groupMap.put("id", group.getId());
             groupMap.put("groupName", group.getGroupName());
+            groupMap.put("userId", group.getUserId());
             all.add(groupMap);
         }
         return all;
