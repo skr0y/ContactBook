@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Service("userService")
 @Transactional
@@ -55,8 +55,8 @@ public class UserService {
         return get(user.getId());
     }
 
-    public Set<Map<String, Object>> getAll() {
-        Set<Map<String, Object>> all = new HashSet<>();
+    public List<Map<String, Object>> getAll() {
+        List<Map<String, Object>> all = new ArrayList<>();
         for (User user : userDAO.getAll()) {
             Map<String, Object> params = new HashMap<>();
             params.put("id", user.getId());

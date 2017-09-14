@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service("contactService")
@@ -38,8 +38,8 @@ public class ContactService {
         return contactDAO.update(contact);
     }
 
-    public Set<Map<String, Object>> getAll() {
-        Set<Map<String, Object>> all = new HashSet<>();
+    public List<Map<String, Object>> getAll() {
+        List<Map<String, Object>> all = new ArrayList<>();
         for (Contact contact : contactDAO.getAll()) {
             Map<String, Object> contactMap = new HashMap<>();
             contactMap.put("id", contact.getId());
@@ -52,7 +52,7 @@ public class ContactService {
         return all;
     }
 
-    public Set<Map<String, Object>> getAll(int userId) {
-        return getAll().stream().filter(x -> (int) x.get("userId") == userId).collect(Collectors.toSet());
+    public List<Map<String, Object>> getAll(int userId) {
+        return getAll().stream().filter(x -> (int) x.get("userId") == userId).collect(Collectors.toList());
     }
 }

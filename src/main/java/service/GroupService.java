@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service("groupService")
@@ -42,8 +42,8 @@ public class GroupService {
         return groupDAO.update(group);
     }
 
-    public Set<Map<String, Object>> getAll() {
-        Set<Map<String, Object>> all = new HashSet<>();
+    public List<Map<String, Object>> getAll() {
+        List<Map<String, Object>> all = new ArrayList<>();
         for (Group group : groupDAO.getAll()) {
             Map<String, Object> groupMap = new HashMap<>();
             groupMap.put("id", group.getId());
@@ -53,7 +53,7 @@ public class GroupService {
         return all;
     }
 
-    public Set<Map<String, Object>> getAll(int userId) {
-        return getAll().stream().filter(x -> (int) x.get("userId") == userId).collect(Collectors.toSet());
+    public List<Map<String, Object>> getAll(int userId) {
+        return getAll().stream().filter(x -> (int) x.get("userId") == userId).collect(Collectors.toList());
     }
 }
